@@ -4,6 +4,9 @@ import random
 import itertools
 import argparse
 
+backtrack_call_num = 0
+backtrack_fail_num = 0
+
 class CSP:
     def __init__(self):
         # self.variables is a list of the variable names in the CSP
@@ -109,8 +112,12 @@ class CSP:
         assignments and inferences that took place in previous
         iterations of the loop.
         """
+        global backtrack_call_num, backtrack_fail_num
+        backtrack_call_num = backtrack_call_num + 1
         if all(len(assignment[items]) == 1 for items in assignment):
             print('Ending reached')
+            print('Backtrack called', backtrack_call_num)
+            print('Backtrack failed', backtrack_fail_num)
             return assignment
         var = self.select_unassigned_variable(assignment)
         for value in assignment[var]:
@@ -120,6 +127,7 @@ class CSP:
                 solution = self.backtrack(new_assignment)
                 if solution:
                     return solution
+        backtrack_fail_num = backtrack_fail_num + 1
         return 0
 
     def select_unassigned_variable(self, assignment):
@@ -242,6 +250,6 @@ def print_sudoku_solution(solution):
             print('------+-------+------')
 
 if __name__=="__main__":
-    csp = create_sudoku_csp("hardestever.txt")
-    sol = csp.backtracking_search()
-    print_sudoku_solution(sol)
+    csp = create_sudoku_csp("veryhard.txt")
+    result = csp.backtracking_search()
+    print_sudoku_solution(result)
