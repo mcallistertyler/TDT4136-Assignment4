@@ -112,13 +112,14 @@ class CSP:
         assignments and inferences that took place in previous
         iterations of the loop.
         """
-        global backtrack_call_num, backtrack_fail_num
-        backtrack_call_num = backtrack_call_num + 1
+        global backtrack_call_num, backtrack_fail_num #global variables that keep track of the number of calls and failures
         if all(len(assignment[items]) == 1 for items in assignment):
-            print('Ending reached')
-            print('Backtrack called', backtrack_call_num)
-            print('Backtrack failed', backtrack_fail_num)
+            print('Ending reached.')
+            print('Backtrack called ', backtrack_call_num, ' times.')
+            print('Backtrack failed ', backtrack_fail_num, ' times.')
             return assignment
+        
+        backtrack_call_num = backtrack_call_num + 1
         var = self.select_unassigned_variable(assignment)
         for value in assignment[var]:
             new_assignment = copy.deepcopy(assignment)
@@ -136,7 +137,7 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        undecided_var = random.choice(list(assignment))
+        undecided_var = random.choice(list(assignment)) #just initialize this to any random grid area
         for item in assignment:
             if len(assignment[item]) > 1:
                 undecided_var = item
@@ -175,33 +176,12 @@ class CSP:
                         valid_y = True
             if not valid_y:
                 if x in assignment[i]:
+                    ## had to do this check or things exploded. some values were strings instead of lists so i convert them cause i dont wanna handle strings separately
                     if isinstance(assignment[i], str):
                         assignment[i] = [assignment[i]]
                     assignment[i].remove(x)
                     removed = True
         return removed
-
-def create_map_coloring_csp():
-    """Instantiate a CSP representing the map coloring problem from the
-    textbook. This can be useful for testing your CSP solver as you
-    develop your code.
-    """
-    csp = CSP()
-    states = ['WA', 'NT', 'Q', 'NSW', 'V', 'SA', 'T']
-    edges = {'SA': ['WA', 'NT', 'Q', 'NSW', 'V'], 'NT': ['WA', 'Q'], 'NSW': ['Q', 'V']}
-    colors = ['red', 'green', 'blue']
-    for state in states:
-        csp.add_variable(state, colors)
-    for state, other_states in edges.items():
-        for other_state in other_states:
-            csp.add_constraint_one_way(state, other_state, lambda i, j: i != j)
-            csp.add_constraint_one_way(other_state, state, lambda i, j: i != j)
-
-    for constraint in csp.constraints:
-        for entry in csp.constraints[constraint]:
-            csp.constraints[constraint][entry] = list(csp.constraints[constraint][entry])
-    return csp
-
 
 def create_sudoku_csp(filename):
     """Instantiate a CSP representing the Sudoku board found in the text
