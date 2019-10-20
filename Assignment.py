@@ -113,13 +113,14 @@ class CSP:
         iterations of the loop.
         """
         global backtrack_call_num, backtrack_fail_num #global variables that keep track of the number of calls and failures
+        backtrack_call_num = backtrack_call_num + 1
+
         if all(len(assignment[items]) == 1 for items in assignment):
             print('Ending reached.')
             print('Backtrack called ', backtrack_call_num, ' times.')
             print('Backtrack failed ', backtrack_fail_num, ' times.')
             return assignment
         
-        backtrack_call_num = backtrack_call_num + 1
         var = self.select_unassigned_variable(assignment)
         for value in assignment[var]:
             new_assignment = copy.deepcopy(assignment)
@@ -230,6 +231,13 @@ def print_sudoku_solution(solution):
             print('------+-------+------')
 
 if __name__=="__main__":
-    csp = create_sudoku_csp("veryhard.txt")
-    result = csp.backtracking_search()
-    print_sudoku_solution(result)
+    sudoku_boards = ['easy.txt', 'medium.txt', 'hard.txt', 'veryhard.txt']
+    for board in sudoku_boards:
+        backtrack_call_num = 0
+        backtrack_fail_num = 0
+        print('-----------------------')
+        print('Doing', board, 'board')
+        sudoku = create_sudoku_csp(board)
+        result = sudoku.backtracking_search()
+        print_sudoku_solution(result)
+        print('-----------------------')
