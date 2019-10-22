@@ -117,8 +117,6 @@ class CSP:
 
         if all(len(assignment[items]) == 1 for items in assignment):
             print('Ending reached.')
-            print('Backtrack called ', backtrack_call_num, ' times.')
-            print('Backtrack failed ', backtrack_fail_num, ' times.')
             return assignment
         
         var = self.select_unassigned_variable(assignment)
@@ -138,7 +136,7 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        undecided_var = random.choice(list(assignment)) #just initialize this to any random grid area
+        undecided_var = random.choice(list(assignment)) #just initialize this to something, any random grid area seems to work fine
         for item in assignment:
             if len(assignment[item]) > 1:
                 undecided_var = item
@@ -155,6 +153,8 @@ class CSP:
             first_values = queue[0]
             del queue[0]
             if(self.revise(assignment, first_values[0], first_values[1])):
+                if len(assignment[first_values[0]]) == 0:
+                    return False
                 for k in self.get_all_neighboring_arcs(first_values[0]):
                     queue.append(k)
         return True
@@ -168,11 +168,12 @@ class CSP:
         between i and j, the value should be deleted from i's list of
         legal values in 'assignment'.
         """
-        removed = False
+        revised = False
         for x in assignment[i]:
             valid_y = False
             for y in assignment[j]:
                 for constraint in self.constraints[i][j]:
+                    #if a valid constraint exists set valid_y to True so nothing needs to be removed
                     if (x, y) == constraint:
                         valid_y = True
             if not valid_y:
@@ -181,8 +182,8 @@ class CSP:
                     if isinstance(assignment[i], str):
                         assignment[i] = [assignment[i]]
                     assignment[i].remove(x)
-                    removed = True
-        return removed
+                    revised = True
+        return revised
 
 def create_sudoku_csp(filename):
     """Instantiate a CSP representing the Sudoku board found in the text
@@ -240,4 +241,6 @@ if __name__=="__main__":
         sudoku = create_sudoku_csp(board)
         result = sudoku.backtracking_search()
         print_sudoku_solution(result)
+        print('Backtrack called ', backtrack_call_num, ' times.')
+        print('Backtrack failed ', backtrack_fail_num, ' times.')
         print('-----------------------')
